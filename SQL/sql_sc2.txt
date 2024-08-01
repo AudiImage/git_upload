@@ -1,0 +1,102 @@
+
+-- 村里表
+create table VILLAGE(
+ ID char(4 BYTE) PRIMARY KEY,
+ NAME NVARCHAR2(10),
+ TOWN NVARCHAR2(5),
+ ADDRESS NVARCHAR2(50),
+ TEL VARCHAR2(20)
+)
+
+-- 插入村里數據
+INSERT INTO VILLAGE VALUES ('C001', '大埔里', '竹南鎮', '公義路1035號', '037-581072');
+INSERT INTO VILLAGE VALUES ('C002', '竹南里', '竹南鎮', '中山路103號', '037-472735');
+INSERT INTO VILLAGE VALUES ('C003', '山佳里', '竹南鎮', '國光街14號', '037-614186');
+INSERT INTO VILLAGE VALUES ('C004', '埔頂里', '後龍鎮', '中興路136-1號', '037-724839');
+INSERT INTO VILLAGE VALUES ('C005', '綠苗里', '苗栗市', '中正路766號', '037-333240');
+INSERT INTO VILLAGE VALUES ('C006', '民族里', '頭份市', '民族路96號', '037-660001');
+INSERT INTO VILLAGE VALUES ('C007', '忠孝里', '頭份市', '光大街82號', '037-661145');
+INSERT INTO VILLAGE VALUES ('C008', '信義里', '頭份市', '信義路53巷1號', '037-616072');
+
+-- 警察轄區表
+create table POLICE_STATION(
+ ID char(4 BYTE) PRIMARY KEY,
+ NAME NVARCHAR2(10),
+ ADDRESS NVARCHAR2(50),
+ TEL VARCHAR2(20)
+)
+
+-- 插入警察轄區數據
+INSERT INTO POLICE_STATION VALUES ('M001', '竹南分局', '竹南鎮民族街72號', '03 747 4796');
+INSERT INTO POLICE_STATION VALUES ('M002', '苗栗分局', '苗栗市金鳳街109號', '03 732 0059');
+INSERT INTO POLICE_STATION VALUES ('M003', '頭份分局', '頭份市中興路503號', '03 766 3004');
+
+-- 苗栗縣警察局防空疏散避難設施表
+Create Table MIAOLI_EVACUATION_FACILITY(
+ ID CHAR(4 BYTE) PRIMARY KEY,
+ CATEGORY NVARCHAR2(8),
+ VIL_ID CHAR(4 Byte) REFERENCES VILLAGE(ID),
+ TOWN NVARCHAR2(5),
+ ADDRESS NVARCHAR2(50),
+ FLOOR_NUM INT,
+ PS_ID CHAR(4 BYTE) REFERENCES POLICE_STATION(ID),
+ CAPACITY INT
+)
+
+-- 插入防空疏散避難設施數據
+INSERT INTO MIAOLI_EVACUATION_FACILITY VALUES ('P001', '公寓', 'C001', '竹南鎮', '中埔街20號', 1, 'M001', 100);
+INSERT INTO MIAOLI_EVACUATION_FACILITY VALUES ('P002', '大樓', 'C002', '竹南鎮', '和平街79號', 1, 'M001', 3142);
+INSERT INTO MIAOLI_EVACUATION_FACILITY VALUES ('P003', '大樓', 'C003', '竹南鎮', '龍山路三段142號', 1, 'M001', 1072);
+INSERT INTO MIAOLI_EVACUATION_FACILITY VALUES ('P004', '公共設施', 'C004', '後龍鎮', '中華路1498號', 1, 'M001', 32);
+INSERT INTO MIAOLI_EVACUATION_FACILITY VALUES ('P005', '公寓', 'C005', '苗栗市', '米市街80號', 1, 'M002', 106);
+INSERT INTO MIAOLI_EVACUATION_FACILITY VALUES ('P006', '公寓', 'C005', '苗栗市', '光復路117號', 1, 'M002', 26);
+INSERT INTO MIAOLI_EVACUATION_FACILITY VALUES ('P007', '大樓', 'C005', '苗栗市', '博愛街109號', 2, 'M002', 2038);
+INSERT INTO MIAOLI_EVACUATION_FACILITY VALUES ('P008', '大樓', 'C005', '苗栗市', '大同路53號', 2, 'M002', 128);
+INSERT INTO MIAOLI_EVACUATION_FACILITY VALUES ('P009', '公共設施', 'C006', '頭份市', '和平路102號', 1, 'M003', 353);
+INSERT INTO MIAOLI_EVACUATION_FACILITY VALUES ('P010', '私營單位', 'C007', '頭份市', '忠孝一路69號', 1, 'M003', 501);
+INSERT INTO MIAOLI_EVACUATION_FACILITY VALUES ('P011', '公寓', 'C008', '頭份市', '中正路65號', 1, 'M003', 194);
+INSERT INTO MIAOLI_EVACUATION_FACILITY VALUES ('P012', '公寓', 'C008', '頭份市', '中正路116號', 1, 'M003', 78);
+
+
+--４-1. 列出 轄管 區域內有單一 避難設施大於 1000 容人數量的 轄管分局 及 分局連絡電話 。
+select PS.NAME, PS.TEL 
+ from MIAOLI_EVACUATION_FACILITY MEF
+ left join POLICE_STATION PS on PS.id = MEF.PS_ID
+ where MEF.CAPACITY  > 1000;
+ 
+--4-2. 列出 轄管 區域內有單一 避難設施大於 1000 容人數量的 轄管分局 及 分局連絡電話 並 計算出 各 轄管分局數量 。 （關鍵字 partition
+select PS.NAME, PS.TEL, count(MEF.ID)
+ from MIAOLI_EVACUATION_FACILITY MEF
+ left join POLICE_STATION PS on PS.id = MEF.PS_ID
+ where MEF.CAPACITY  > 1000
+ group by PS.NAME, PS.TEL;
+ 
+--4-3. 承上題， 再補上 避難設施地址 、 類型 。
+select PS.NAME, PS.TEL, count(MEF.ID),  '苗栗縣' || MEF.TOWN || MEF.ADDRESS, MEF.CATEGORY
+ from MIAOLI_EVACUATION_FACILITY MEF
+ left join POLICE_STATION PS on PS.id = MEF.PS_ID
+ where MEF.CAPACITY  > 1000
+ group by PS.NAME, PS.TEL, '苗栗縣' || MEF.TOWN || MEF.ADDRESS, MEF.CATEGORY;
+ 
+--4-4. 查詢設施地址包含「中」字的避難設施，列出資料必須含 村里別 、 避難設施地址 、 容人數量 、 轄管分局 及 分局連絡電話 。
+select VIGE.NAME, '苗栗縣' || MEF.TOWN || MEF.ADDRESS, PS.NAME, PS.TEL
+ from MIAOLI_EVACUATION_FACILITY MEF
+ left join VILLAGE VIGE ON VIGE.ID = MEF.VIL_ID
+ left join POLICE_STATION PS on PS.ID = MEF.PS_ID
+ where '苗栗縣' || MEF.TOWN || MEF.ADDRESS like '%中%';
+
+--4-5. 查詢 所有 類別 為 公寓及大樓 的 避難設施 列出 資料必須包含 村里別 、 村里辦公室位置 、 避難設施地址 、 容人數量 。
+select VIGE.NAME, '苗栗縣' || VIGE.NAME || VIGE.TOWN || VIGE.ADDRESS, '苗栗縣' || MEF.TOWN || MEF.ADDRESS AS EVACUATION_INFO, MEF.CAPACITY
+ from MIAOLI_EVACUATION_FACILITY MEF
+ left join VILLAGE VIGE ON VIGE.ID = MEF.VIL_ID;
+
+--5-1. 更新避難設施地址 是 「苗栗縣 竹南鎮和平街 79 號 」的容人數量為 5000 人 。
+update MIAOLI_EVACUATION_FACILITY
+ set CAPACITY = 5000
+ where '苗栗縣' || TOWN || ADDRESS = '苗栗縣竹南鎮和平街79號'
+
+--5-2. 刪除避難設施小 於 1000 容人數量的 資料 。
+delete from MIAOLI_EVACUATION_FACILITY
+ where CAPACITY < 1000;
+
+
