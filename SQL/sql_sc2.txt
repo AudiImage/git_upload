@@ -60,35 +60,42 @@ INSERT INTO MIAOLI_EVACUATION_FACILITY VALUES ('P012', '公寓', 'C008', '中正
 --４-1. 列出 轄管 區域內有單一 避難設施大於 1000 容人數量的 轄管分局 及 分局連絡電話 。
 select PS.NAME, PS.TEL 
  from MIAOLI_EVACUATION_FACILITY MEF
- left join POLICE_STATION PS on PS.id = MEF.PS_ID
+ left join POLICE_STATION PS 
+ on PS.id = MEF.PS_ID
  where MEF.CAPACITY  > 1000;
  
 --4-2. 列出 轄管 區域內有單一 避難設施大於 1000 容人數量的 轄管分局 及 分局連絡電話 並 計算出 各 轄管分局數量 。 （關鍵字 partition
 select PS.NAME, PS.TEL, count(MEF.ID)
  from MIAOLI_EVACUATION_FACILITY MEF
- left join POLICE_STATION PS on PS.id = MEF.PS_ID
+ left join POLICE_STATION PS 
+ on PS.id = MEF.PS_ID
  where MEF.CAPACITY  > 1000
  group by PS.NAME, PS.TEL;
  
 --4-3. 承上題， 再補上 避難設施地址 、 類型 。
 select PS.NAME, PS.TEL, count(MEF.ID),  '苗栗縣' || VIGE.TOWN || MEF.ADDRESS, MEF.CATEGORY
  from MIAOLI_EVACUATION_FACILITY MEF
- left join POLICE_STATION PS on PS.id = MEF.PS_ID
- left join VILLAGE VIGE ON VIGE.ID = MEF.VIL_ID
+ left join POLICE_STATION PS 
+ on PS.id = MEF.PS_ID
+ left join VILLAGE VIGE 
+ ON VIGE.ID = MEF.VIL_ID
  where MEF.CAPACITY  > 1000
  group by PS.NAME, PS.TEL, '苗栗縣' || VIGE.TOWN || MEF.ADDRESS, MEF.CATEGORY;
  
 --4-4. 查詢設施地址包含「中」字的避難設施，列出資料必須含 村里別 、 避難設施地址 、 容人數量 、 轄管分局 及 分局連絡電話 。
 select VIGE.NAME, '苗栗縣' || VIGE.TOWN || MEF.ADDRESS, PS.NAME, PS.TEL
  from MIAOLI_EVACUATION_FACILITY MEF
- left join VILLAGE VIGE ON VIGE.ID = MEF.VIL_ID
- left join POLICE_STATION PS on PS.ID = MEF.PS_ID
+ left join VILLAGE VIGE 
+ on VIGE.ID = MEF.VIL_ID
+ left join POLICE_STATION PS 
+ on PS.ID = MEF.PS_ID
  where '苗栗縣' || VIGE.TOWN || MEF.ADDRESS like '%中%';
 
 --4-5. 查詢 所有 類別 為 公寓及大樓 的 避難設施 列出 資料必須包含 村里別 、 村里辦公室位置 、 避難設施地址 、 容人數量 。
 select VIGE.NAME, '苗栗縣' || VIGE.NAME || VIGE.TOWN || VIGE.ADDRESS, '苗栗縣' || VIGE.TOWN || MEF.ADDRESS AS EVACUATION_INFO, MEF.CAPACITY
  from MIAOLI_EVACUATION_FACILITY MEF
- left join VILLAGE VIGE ON VIGE.ID = MEF.VIL_ID;
+ left join VILLAGE VIGE 
+ on VIGE.ID = MEF.VIL_ID;
 
 --5-1. 更新避難設施地址 是 「苗栗縣 竹南鎮和平街 79 號 」的容人數量為 5000 人 。
 update MIAOLI_EVACUATION_FACILITY MEF
