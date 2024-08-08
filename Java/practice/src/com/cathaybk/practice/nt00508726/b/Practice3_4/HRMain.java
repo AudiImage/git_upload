@@ -39,8 +39,8 @@ public class HRMain {
                     Sales sales = (Sales) employee;
                     payment = sales.getPayment();
                 }
-                System.out.println(employee.getName() + "," + payment);
-                bufferedWriter.write(employee.getName() + "," + payment + "\n");
+                System.out.println(new StringBuilder().append(employee.getName()).append(",").append(payment));
+                bufferedWriter.write(new StringBuilder().append(employee.getName()).append(",").append(payment).append("\n").toString());
             }
 
         } catch (IOException e) {

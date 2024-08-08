@@ -1,14 +1,13 @@
 package com.cathaybk.practice.nt00508726.b;
 
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 
 public class Practice2 {
     /*【實作練習 2 樂透 程式 】 套 件名稱： c om.cathaybk. practice . 行 編 ).b
     (1)從 1~49 ，隨機抓取六個不同的數字 ，且 數 字不 得重覆 。
     (2)顯示排序前與排序後（由小到大）之結果。
+
+    Comparactor由大到小 Comparator.naturalOrder
     * */
     public static void main(String[] args) {
         Random random = new Random();
@@ -28,6 +27,7 @@ public class Practice2 {
                 return o1 - o2;
             }
         });
+//        Collections.sort(nums, Comparator.reverseOrder());
         System.out.println("排序後: " + printList(nums));
     }
 

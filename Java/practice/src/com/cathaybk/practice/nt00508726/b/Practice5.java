@@ -38,19 +38,8 @@ public class Practice5 {
         System.out.println("日\t 一\t 二\t 三\t 四\t 五\t 六");
         System.out.println("===========================");
 
-        if (month == 1 || month == 3 || month == 5 || month == 7 || month == 8 || month == 10 || month == 12) {
-            days = 31;
-        }
-        if (month == 4 || month == 6 || month == 9 || month == 11) {
-            days = 30;
-        }
-        if (month == 2) {
-            if (((year % 4 == 0) && (year % 100 != 0)) || (year % 400 == 0)) {
-                days = 29;
-            } else {
-                days = 28;
-            }
-        }
+        LocalDate firstDayOfMonth = LocalDate.of(year, month, 1);
+        days = firstDayOfMonth.lengthOfMonth();
 
         // month是index
         c.set(year, month - 1, 1);

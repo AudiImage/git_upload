@@ -34,7 +34,6 @@ public class Practice6 {
                     put("price", price);
                 }});
             }
-            System.out.println(lists);
             Collections.sort(lists, new Comparator<Map<String, String>>() {
                 @Override
                 public int compare(Map<String, String> o1, Map<String, String> o2) {

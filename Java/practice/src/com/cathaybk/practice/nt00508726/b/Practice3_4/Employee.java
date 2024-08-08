@@ -39,7 +39,7 @@ public class Employee implements IWork{
     @Override
     public void printInfo() {
         System.out.println("薪資單");
-        System.out.println("姓名: " + name + " 工作部門: " + department );
+        System.out.printf("姓名: %s 工作部門: %s", name, department);
         System.out.println("月薪: " + salary);
     }
 }

@@ -85,25 +85,21 @@ public class Practice7 {
     private static void query(Scanner scanner) {
         try (Connection conn = DriverManager.getConnection(CONN_URL, USER_NAME, PASSWORD)) {
             conn.setAutoCommit(false); // 禁用自动提交
-
-            try {
+            // 改成兩層try
+            try (PreparedStatement pstmt = conn.prepareStatement(SELECT_CARS_SQL);
+                 ResultSet rs = pstmt.executeQuery()) {
                 String manufactor = askQuestion(scanner, "manufactor");
                 String type = askQuestion(scanner, "type");
-
-                try (PreparedStatement pstmt = conn.prepareStatement(SELECT_CARS_SQL)) {
-                    pstmt.setString(1, manufactor);
-                    pstmt.setString(2, type);
-
-                    try (ResultSet rs = pstmt.executeQuery()) {
-                        while (rs.next()) {
-                            System.out.printf("製造商：%s，型號：%s，售價：%s，底價：%s%n",
-                                    rs.getString("MANUFACTURER"),
-                                    rs.getString("TYPE"),
-                                    rs.getString("PRICE"),
-                                    rs.getString("MIN_PRICE"));
-                        }
-                    }
+                pstmt.setString(1, manufactor);
+                pstmt.setString(2, type);
+                while (rs.next()) {
+                    System.out.printf("製造商：%s，型號：%s，售價：%s，底價：%s%n",
+                            rs.getString("MANUFACTURER"),
+                            rs.getString("TYPE"),
+                            rs.getString("PRICE"),
+                            rs.getString("MIN_PRICE"));
                 }
+
 
                 conn.commit();
             } catch (Exception e) {
@@ -123,19 +119,18 @@ public class Practice7 {
         try (Connection conn = DriverManager.getConnection(CONN_URL, USER_NAME, PASSWORD)) {
             conn.setAutoCommit(false);
 
-            try {
+            try (PreparedStatement pstmt = conn.prepareStatement(INSERT_CARS_SQL)) {
                 String manufactor = askQuestion(scanner, "manufactor");
                 String type = askQuestion(scanner, "type");
                 String price = askQuestion(scanner, "price");
                 String minPrice = askQuestion(scanner, "min_price");
-                try (PreparedStatement pstmt = conn.prepareStatement(INSERT_CARS_SQL)) {
-                    pstmt.setString(1, manufactor);
-                    pstmt.setString(2, type);
-                    pstmt.setInt(3, Integer.parseInt(minPrice));
-                    pstmt.setInt(4, Integer.parseInt(price));
-                    pstmt.executeUpdate();
-                    System.out.println("新增成功!");
-                }
+                pstmt.setString(1, manufactor);
+                pstmt.setString(2, type);
+                pstmt.setInt(3, Integer.parseInt(minPrice));
+                pstmt.setInt(4, Integer.parseInt(price));
+                pstmt.executeUpdate();
+                System.out.println("新增成功!");
+
 
                 conn.commit();
             } catch (Exception e) {
@@ -154,19 +149,18 @@ public class Practice7 {
     private static void update(Scanner scanner) {
         try (Connection conn = DriverManager.getConnection(CONN_URL, USER_NAME, PASSWORD)) {
             conn.setAutoCommit(false);
-            try {
+            try (PreparedStatement pstmt = conn.prepareStatement(UPDATE_CAR_SQL)) {
                 String manufactor = askQuestion(scanner, "manufactor");
                 String type = askQuestion(scanner, "type");
                 String price = askQuestion(scanner, "price");
                 String minPrice = askQuestion(scanner, "min_price");
-                try (PreparedStatement pstmt = conn.prepareStatement(UPDATE_CAR_SQL)) {
-                    pstmt.setInt(1, Integer.parseInt(minPrice));
-                    pstmt.setInt(2, Integer.parseInt(price));
-                    pstmt.setString(3, manufactor);
-                    pstmt.setString(4, type);
-                    pstmt.executeUpdate();
-                    System.out.println("更新成功!");
-                }
+                pstmt.setInt(1, Integer.parseInt(minPrice));
+                pstmt.setInt(2, Integer.parseInt(price));
+                pstmt.setString(3, manufactor);
+                pstmt.setString(4, type);
+                pstmt.executeUpdate();
+                System.out.println("更新成功!");
+
                 conn.commit();
             } catch (Exception e) {
                 conn.rollback();
@@ -183,15 +177,13 @@ public class Practice7 {
     private static void delete(Scanner scanner) {
         try (Connection conn = DriverManager.getConnection(CONN_URL, USER_NAME, PASSWORD)) {
             conn.setAutoCommit(false);
-            try {
+            try (PreparedStatement pstmt = conn.prepareStatement(DELETE_CAR_SQL)) {
                 String manufactor = askQuestion(scanner, "manufactor");
                 String type = askQuestion(scanner, "type");
-                try (PreparedStatement pstmt = conn.prepareStatement(DELETE_CAR_SQL)) {
-                    pstmt.setString(1, manufactor);
-                    pstmt.setString(2, type);
-                    pstmt.executeUpdate();
-                    System.out.println("刪除成功!");
-                }
+                pstmt.setString(1, manufactor);
+                pstmt.setString(2, type);
+                pstmt.executeUpdate();
+                System.out.println("刪除成功!");
                 conn.commit();
             } catch (Exception e) {
                 conn.rollback();
@@ -207,7 +199,9 @@ public class Practice7 {
 
     }
 
-
+    /*
+     * 對於非數字處理
+     * */
     public static String askQuestion(Scanner scanner, String key) {
         System.out.print(questions.get(key));
         String input = scanner.next();
@@ -218,3 +212,18 @@ public class Practice7 {
         return input;
     }
 }
+// CR提出的問題
+//1.(補充)有使用String.format("%2d", result)去處理排版，其實第15行可以把內容精簡成用一個
+//String.format()去處理
+//2.(補充)可將List改為Set，透過Set不重複的特性免去19~21的重複判斷(補充)
+//這邊是自訂一個Comparator，但一般由小到大有預設的Comparator可使用
+//nums.sort(Comparator.naturalOrder());
+//那如果題目改成由大到小的話，你可以再看看有沒有其他預設的Comparator去處理
+//3.4.
+//        (CR)Employee.java 第42行，多個字串串接，改用String.format
+//        (CR)HRMain.java 第42/43行，多個字串串接，改用String.format或StringBuilder
+//5.(優化)
+//目前當前月份天數跟閏年判斷都是用數學計算處理。
+//建議用LocalDate之類的去寫看看，有既有的工具可以去判斷當前月份天數
+//6.(CR)第37行的println是多的，請移除
+//7.(CR)query insert update delete，try有點多層，可以簡化成兩層try
