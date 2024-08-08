@@ -52,7 +52,7 @@ public class Practice5 {
             }
         }
 
-
+        // month是index
         c.set(year, month - 1, 1);
 
         int FirstDayInWeek = c.get(Calendar.DAY_OF_WEEK) - 1;

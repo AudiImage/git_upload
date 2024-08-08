@@ -12,7 +12,7 @@ public class Practice1 {
         for (int i = 2; i < 10; i++) {
             for (int j = 1; j < 10; j++) {
                 result = i * j;
-                sb.append(i).append(" * ").append(j).append(" =").append(String.format("%2d", result)).append(" ");
+                sb.append(i).append("*").append(j).append(" =").append(String.format("%2d", result)).append(" ");
 
             }
             System.out.println(sb.toString());
