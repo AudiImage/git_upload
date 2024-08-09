@@ -88,8 +88,8 @@ public class Practice7 {
             // 改成兩層try
             try (PreparedStatement pstmt = conn.prepareStatement(SELECT_CARS_SQL);
                  ResultSet rs = pstmt.executeQuery()) {
-                String manufactor = askQuestion(scanner, "manufactor");
-                String type = askQuestion(scanner, "type");
+                String manufactor = askQuestion(scanner, "manufactor", "String");
+                String type = askQuestion(scanner, "type", "String");
                 pstmt.setString(1, manufactor);
                 pstmt.setString(2, type);
                 while (rs.next()) {
@@ -120,10 +120,10 @@ public class Practice7 {
             conn.setAutoCommit(false);
 
             try (PreparedStatement pstmt = conn.prepareStatement(INSERT_CARS_SQL)) {
-                String manufactor = askQuestion(scanner, "manufactor");
-                String type = askQuestion(scanner, "type");
-                String price = askQuestion(scanner, "price");
-                String minPrice = askQuestion(scanner, "min_price");
+                String manufactor = askQuestion(scanner, "manufactor", "String");
+                String type = askQuestion(scanner, "type", "String");
+                String price = askQuestion(scanner, "price", "int");
+                String minPrice = askQuestion(scanner, "min_price", "int");
                 pstmt.setString(1, manufactor);
                 pstmt.setString(2, type);
                 pstmt.setInt(3, Integer.parseInt(minPrice));
@@ -150,10 +150,10 @@ public class Practice7 {
         try (Connection conn = DriverManager.getConnection(CONN_URL, USER_NAME, PASSWORD)) {
             conn.setAutoCommit(false);
             try (PreparedStatement pstmt = conn.prepareStatement(UPDATE_CAR_SQL)) {
-                String manufactor = askQuestion(scanner, "manufactor");
-                String type = askQuestion(scanner, "type");
-                String price = askQuestion(scanner, "price");
-                String minPrice = askQuestion(scanner, "min_price");
+                String manufactor = askQuestion(scanner, "manufactor", "String");
+                String type = askQuestion(scanner, "type", "String");
+                String price = askQuestion(scanner, "price", "int");
+                String minPrice = askQuestion(scanner, "min_price", "int");
                 pstmt.setInt(1, Integer.parseInt(minPrice));
                 pstmt.setInt(2, Integer.parseInt(price));
                 pstmt.setString(3, manufactor);
@@ -178,8 +178,8 @@ public class Practice7 {
         try (Connection conn = DriverManager.getConnection(CONN_URL, USER_NAME, PASSWORD)) {
             conn.setAutoCommit(false);
             try (PreparedStatement pstmt = conn.prepareStatement(DELETE_CAR_SQL)) {
-                String manufactor = askQuestion(scanner, "manufactor");
-                String type = askQuestion(scanner, "type");
+                String manufactor = askQuestion(scanner, "manufactor", "String");
+                String type = askQuestion(scanner, "type", "String");
                 pstmt.setString(1, manufactor);
                 pstmt.setString(2, type);
                 pstmt.executeUpdate();
@@ -202,14 +202,32 @@ public class Practice7 {
     /*
      * 對於非數字處理
      * */
-    public static String askQuestion(Scanner scanner, String key) {
+    public static String askQuestion(Scanner scanner, String key, String type) {
         System.out.print(questions.get(key));
         String input = scanner.next();
-        if (input.equals("")) {
-            System.out.println("請重新輸入");
-            return askQuestion(scanner, key);
+        if (!isValid(input, type)) {
+            System.out.println("輸入格式錯誤，請重新輸入");
+            return askQuestion(scanner, key, type);
         }
         return input;
+    }
+
+    /*
+    * 對輸入值進行類別檢查
+    * */
+    private static boolean isValid(String input, String type) {
+        if ("String".equals(type)) {
+            return !input.trim().isEmpty();
+        }
+        if ("int".equals(type)) {
+            try {
+                Integer.parseInt(input);
+                return true;
+            } catch (NumberFormatException e) {
+                return false;
+            }
+        }
+        return false;
     }
 }
 // CR提出的問題
