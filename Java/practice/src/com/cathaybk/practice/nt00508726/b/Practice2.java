@@ -7,7 +7,6 @@ public class Practice2 {
     (1)從 1~49 ，隨機抓取六個不同的數字 ，且 數 字不 得重覆 。
     (2)顯示排序前與排序後（由小到大）之結果。
 
-    Comparactor由大到小 Comparator.naturalOrder
     * */
     public static void main(String[] args) {
         Random random = new Random();
@@ -21,13 +20,11 @@ public class Practice2 {
             nums.add(lottoNum);
         }
         System.out.println("排序前: " + printList(nums));
-        nums.sort(new Comparator<Integer>() {
-            @Override
-            public int compare(Integer o1, Integer o2) {
-                return o1 - o2;
-            }
-        });
-//        Collections.sort(nums, Comparator.reverseOrder());
+        Collections.sort(nums);
+        /*
+        *Collections.sort(nums, Comparator.reverseOrder());
+        *由大到小排序
+         */
         System.out.println("排序後: " + printList(nums));
     }
 

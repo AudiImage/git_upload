@@ -3,6 +3,7 @@ package com.cathaybk.practice.nt00508726.b;
 
 import java.io.*;
 import java.math.BigDecimal;
+import java.sql.Connection;
 import java.util.*;
 
 public class Practice6 {
@@ -16,7 +17,7 @@ public class Practice6 {
         try (InputStreamReader isr = new InputStreamReader(new FileInputStream("Java評量_第6題cars.csv"));
              BufferedReader br = new BufferedReader(isr);
              BufferedWriter bw = new BufferedWriter(new FileWriter("cars2.csv"))) {
-            java.lang.String line;
+            String line;
             // 忽略第一行標題
             if ((line = br.readLine()) != null) {
             }
@@ -34,14 +35,9 @@ public class Practice6 {
                     put("price", price);
                 }});
             }
-            Collections.sort(lists, new Comparator<Map<String, String>>() {
-                @Override
-                public int compare(Map<String, String> o1, Map<String, String> o2) {
-                    BigDecimal price1 = new BigDecimal(o1.get("price"));
-                    BigDecimal price2 = new BigDecimal(o2.get("price"));
-                    return price2.compareTo(price1);
-                }
-            });
+            Collections.sort(lists, (o1, o2) ->
+                    new BigDecimal(o2.get("price")).compareTo(new BigDecimal(o1.get("price")))
+            );
             // 儲存到car2.csv
             bw.write("Manufacturer,TYPE,Min.PRICE,Price\n");
             StringBuilder sb = new StringBuilder();

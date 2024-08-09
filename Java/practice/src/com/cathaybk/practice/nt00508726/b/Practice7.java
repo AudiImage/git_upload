@@ -61,7 +61,7 @@ public class Practice7 {
                 try (PreparedStatement pstmt = conn.prepareStatement(SELECT_ALL_CARS_SQL)) {
                     try (ResultSet rs = pstmt.executeQuery()) {
                         while (rs.next()) {
-                            System.out.printf("製造商：%s，型號：%s，售價：%s，底價：%s%n",
+                            System.out.printf("製造商：%s，型號：%s，售價：%s，底價：%s\n",
                                     rs.getString("MANUFACTURER"),
                                     rs.getString("TYPE"),
                                     rs.getString("PRICE"),

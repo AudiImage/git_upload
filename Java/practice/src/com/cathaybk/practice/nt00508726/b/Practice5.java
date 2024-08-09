@@ -8,8 +8,6 @@ import java.util.Scanner;
 public class Practice5 {
 
 
-
-
     public static void main(String[] args) {
         //保存用户输入的年份
         int year = LocalDate.now().getYear();
@@ -18,24 +16,22 @@ public class Practice5 {
 
         //接受用户输入的年份
         int month;
-        while(true){
+        while (true) {
             Scanner in = new Scanner(System.in);
             System.out.print("輸入介於1-12之間的整數m:");
             month = in.nextInt();
-            if(month >= 1 && month <= 12){
+            if (month >= 1 && month <= 12) {
                 break;
             }
         }
-
-
 
         //得到一个Calendar对象
         Calendar c = Calendar.getInstance();
 
 
-        System.out.printf("      %d年%d月            \n", year, month);
+        System.out.printf("        %d年%d月          \n", year, month);
         System.out.println("--------------------------");
-        System.out.println("日\t 一\t 二\t 三\t 四\t 五\t 六");
+        System.out.println(" 日\t一\t 二\t 三\t 四\t 五\t 六");
         System.out.println("===========================");
 
         LocalDate firstDayOfMonth = LocalDate.of(year, month, 1);
@@ -65,9 +61,4 @@ public class Practice5 {
         System.out.print("\n");
 
     }
-
-
-
-
-
 }
