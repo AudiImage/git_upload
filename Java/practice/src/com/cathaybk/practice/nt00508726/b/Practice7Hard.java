@@ -1,12 +1,9 @@
 package com.cathaybk.practice.nt00508726.b;
 
-
 import java.sql.*;
 import java.util.*;
 
-
-public class Practice7 {
-
+public class Practice7Hard {
     private static final String CONN_URL = "jdbc:oracle:thin:@//localhost:1521/XE";
     private static final String USER_NAME = "student";
     private static final String PASSWORD = "student123456";
@@ -16,6 +13,8 @@ public class Practice7 {
     private static final String UPDATE_CAR_SQL = "update STUDENT.CARS set MIN_PRICE = ?, PRICE = ? where MANUFACTURER = ? and TYPE = ?";
     public static final String DELETE_CAR_SQL = "delete from STUDENT.CARS where MANUFACTURER = ? and TYPE = ?";
     private static final HashMap<String, String> questions;
+    private static final Map<String, Runnable> commands;
+    public static final Scanner scanner;
 
     static {
         questions = new HashMap<>();
@@ -23,56 +22,36 @@ public class Practice7 {
         questions.put("type", "請輸入類型:");
         questions.put("min_price", "請輸入底價:");
         questions.put("price", "請輸入售價:");
+        commands = new HashMap<>();
+        scanner = new Scanner(System.in);
+        commands.put("select", () -> query(scanner));
+        commands.put("insert", () -> insert(scanner));
+        commands.put("update", () -> update(scanner));
+        commands.put("delete", () -> delete(scanner));
     }
+
 
     public static void main(String[] args) {
-        //1. 先查詢全部的
+
         query_all();
-        //2. 讓使用者自己選要的指令
-        boolean valid = false;
-        while (!valid) {
-            Scanner scanner = new Scanner(System.in);
+
+        while (true) {
             System.out.println("請選擇以下指令輸入: select、insert、update、delete");
             String input = scanner.next().toLowerCase();
-            switch (input) {
-                case "select":
-                    query(scanner);
-                    valid = true;
-                    break;
-                case "insert":
-                    insert(scanner);
-                    valid = true;
-                    break;
-                case "update":
-                    update(scanner);
-                    valid = true;
-                    break;
-                case "delete":
-                    delete(scanner);
-                    valid = true;
-                    break;
-                default:
-                    System.out.println("輸入錯誤，請重新輸入指令");
-                    break;
-
-
+            Runnable command = commands.get(input);
+            if (command != null) {
+                command.run();
+                break;
             }
+            System.out.println("輸入錯誤，請重新輸入指令");
         }
     }
-
 
     public static void query_all() {
         try (Connection conn = DriverManager.getConnection(CONN_URL, USER_NAME, PASSWORD);
              PreparedStatement pstmt = conn.prepareStatement(SELECT_ALL_CARS_SQL);
              ResultSet rs = pstmt.executeQuery()) {
-            while (rs.next()) {
-                System.out.printf("製造商：%s，型號：%s，售價：%s，底價：%s\n",
-                        rs.getString("MANUFACTURER"),
-                        rs.getString("TYPE"),
-                        rs.getString("PRICE"),
-                        rs.getString("MIN_PRICE"));
-            }
-
+            printData(rs);
         } catch (SQLException e) {
             System.out.println("資料庫連接失敗");
             e.printStackTrace();
@@ -82,23 +61,14 @@ public class Practice7 {
     private static void query(Scanner scanner) {
         try (Connection conn = DriverManager.getConnection(CONN_URL, USER_NAME, PASSWORD);
              PreparedStatement pstmt = conn.prepareStatement(SELECT_CARS_SQL)) {
-            conn.setAutoCommit(false);
             String manufactor = askQuestion(scanner, "manufactor", "String");
             String type = askQuestion(scanner, "type", "String");
             pstmt.setString(1, manufactor);
             pstmt.setString(2, type);
             try (ResultSet rs = pstmt.executeQuery()) {
-                while (rs.next()) {
-                    System.out.printf("製造商：%s，型號：%s，售價：%s，底價：%s%n",
-                            rs.getString("MANUFACTURER"),
-                            rs.getString("TYPE"),
-                            rs.getString("PRICE"),
-                            rs.getString("MIN_PRICE"));
-                }
-                conn.commit();
+                printData(rs);
             } catch (Exception e) {
-                conn.rollback();
-                System.out.println("操作失敗");
+                System.out.println("查詢失敗");
                 e.printStackTrace();
             }
 
@@ -124,8 +94,6 @@ public class Practice7 {
                 pstmt.setDouble(4, Double.parseDouble(price));
                 pstmt.executeUpdate();
                 System.out.println("新增成功!");
-
-
                 conn.commit();
             } catch (Exception e) {
                 conn.rollback();
@@ -137,7 +105,6 @@ public class Practice7 {
             System.out.println("資料庫連接失敗");
             e.printStackTrace();
         }
-
     }
 
     private static void update(Scanner scanner) {
@@ -194,6 +161,18 @@ public class Practice7 {
     }
 
     /*
+     * 打印資料
+     */
+    public static void printData(ResultSet rs) throws SQLException {
+        while (rs.next()) {
+            System.out.printf("製造商：%s，型號：%s，售價：%s，底價：%s%n",
+                    rs.getString("MANUFACTURER"),
+                    rs.getString("TYPE"),
+                    rs.getString("PRICE"),
+                    rs.getString("MIN_PRICE"));
+        }
+    }
+    /*
      * 對於非數字處理
      * */
     public static String askQuestion(Scanner scanner, String key, String type) {
@@ -223,19 +202,6 @@ public class Practice7 {
         }
         return false;
     }
+
+
 }
-// CR提出的問題
-//1.(補充)有使用String.format("%2d", result)去處理排版，其實第15行可以把內容精簡成用一個
-//String.format()去處理
-//2.(補充)可將List改為Set，透過Set不重複的特性免去19~21的重複判斷(補充)
-//這邊是自訂一個Comparator，但一般由小到大有預設的Comparator可使用
-//nums.sort(Comparator.naturalOrder());
-//那如果題目改成由大到小的話，你可以再看看有沒有其他預設的Comparator去處理
-//3.4.
-//        (CR)Employee.java 第42行，多個字串串接，改用String.format
-//        (CR)HRMain.java 第42/43行，多個字串串接，改用String.format或StringBuilder
-//5.(優化)
-//目前當前月份天數跟閏年判斷都是用數學計算處理。
-//建議用LocalDate之類的去寫看看，有既有的工具可以去判斷當前月份天數
-//6.(CR)第37行的println是多的，請移除
-//7.(CR)query insert update delete，try有點多層，可以簡化成兩層try
