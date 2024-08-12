@@ -4,13 +4,14 @@ import java.sql.*;
 import java.util.*;
 
 public class Practice7Hard {
-    private static final String CONN_URL = "jdbc:oracle:thin:@//10.0.1.1:1521/XE";
+    private static final String CONN_URL = "jdbc:oracle:thin:@//localhost:1521/XE";
     private static final String USER_NAME = "student";
     private static final String PASSWORD = "student123456";
     private static final String SELECT_ALL_CARS_SQL = "select * from STUDENT.CARS";
     public static final String SELECT_CARS_SQL = "select * from STUDENT.CARS where MANUFACTURER =? and TYPE = ?";
     private static final String INSERT_CARS_SQL = "insert into STUDENT.CARS (MANUFACTURER, TYPE, MIN_PRICE, PRICE) values (?, ?, ?, ?)";
-    private static final String UPDATE_CAR_SQL = "update STUDENT.CARS set MIN_PRICE = ?, PRICE = ? where MANUFACTURER = ? and TYPE = ?";
+    private static String UPDATE_CAR_SET_SQL = "update STUDENT.CARS set ";
+    private static String UPDATE_CAR_WHERE_SQL = " where MANUFACTURER = ? and TYPE = ?";
     public static final String DELETE_CAR_SQL = "delete from STUDENT.CARS where MANUFACTURER = ? and TYPE = ?";
     private static final HashMap<String, String> questions;
     private static final Map<String, Runnable> commands;
@@ -110,15 +111,46 @@ public class Practice7Hard {
     private static void update(Scanner scanner) {
         try (Connection conn = DriverManager.getConnection(CONN_URL, USER_NAME, PASSWORD)) {
             conn.setAutoCommit(false);
-            try (PreparedStatement pstmt = conn.prepareStatement(UPDATE_CAR_SQL)) {
-                String manufactor = askQuestion(scanner, "manufactor", "String");
-                String type = askQuestion(scanner, "type", "String");
-                String price = askQuestion(scanner, "price", "double");
-                String minPrice = askQuestion(scanner, "min_price", "double");
-                pstmt.setDouble(1, Double.parseDouble(minPrice));
-                pstmt.setDouble(2, Double.parseDouble(price));
-                pstmt.setString(3, manufactor);
-                pstmt.setString(4, type);
+            System.out.println("輸入數字選擇需要修改的值:");
+            System.out.println("1. 修改MIN_PRICE和PRICE");
+            System.out.println("2. 修改MIN_PRICE");
+            System.out.println("3. 修改PRICE");
+            String userSelect = scanner.next();
+            String manufactor = askQuestion(scanner, "manufactor", "String");
+            String type = askQuestion(scanner, "type", "String");
+            String price = "";
+            String minPrice = "";
+            StringBuilder sb = new StringBuilder();
+            sb.append(UPDATE_CAR_SET_SQL);
+            if (userSelect.equals("1")) {
+                price = askQuestion(scanner, "price", "double");
+                minPrice = askQuestion(scanner, "min_price", "double");
+                sb.append("MIN_PRICE = ? ").append(",").append("PRICE = ? ");
+            }else if (userSelect.equals("2")) {
+                minPrice = askQuestion(scanner, "min_price", "double");
+                sb.append("MIN_PRICE = ? ");
+            } else if (userSelect.equals("3")) {
+                price = askQuestion(scanner, "price", "double");
+                sb.append("PRICE = ? ");
+            }
+            sb.append(UPDATE_CAR_WHERE_SQL);
+
+            System.out.println("SQL輸出語句:"+sb.toString());
+            try (PreparedStatement pstmt = conn.prepareStatement(sb.toString())) {
+                int index = 1;
+                if (minPrice.isEmpty()){
+
+                    pstmt.setDouble(index++, Double.parseDouble(price));
+                } else if (price.isEmpty() ) {
+                    pstmt.setDouble(index++, Double.parseDouble(minPrice));
+                }else{
+                    pstmt.setDouble(index++, Double.parseDouble(minPrice));
+                    pstmt.setDouble(index++, Double.parseDouble(price));
+                }
+                System.out.println(index);
+                pstmt.setString(index++, manufactor);
+                System.out.println(index);
+                pstmt.setString(index++, type);
                 pstmt.executeUpdate();
                 System.out.println("更新成功!");
 
@@ -188,7 +220,8 @@ public class Practice7Hard {
     /*
      * 對輸入值進行類別檢查
      * */
-    private static boolean isValid(String input, String type) {
+
+    private static boolean isValid(String input, String type ) {
         if ("String".equals(type)) {
             return !input.trim().isEmpty();
         }
@@ -202,6 +235,8 @@ public class Practice7Hard {
         }
         return false;
     }
+
+
 
 
 }
