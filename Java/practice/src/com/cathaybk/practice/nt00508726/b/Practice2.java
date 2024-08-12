@@ -21,9 +21,10 @@ public class Practice2 {
             nums.add(lottoNum);
         }
         System.out.println("排序前: " + printList(nums));
-        Collections.sort(nums);
+//        Collections.sort(nums);
         /*
         *Collections.sort(nums, Comparator.reverseOrder());
+        *nums.sort((o1, o2) -> o2 - o1);
         *由大到小排序
          */
         System.out.println("排序後: " + printList(nums));

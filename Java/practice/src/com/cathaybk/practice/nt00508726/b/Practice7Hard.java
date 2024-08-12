@@ -4,7 +4,7 @@ import java.sql.*;
 import java.util.*;
 
 public class Practice7Hard {
-    private static final String CONN_URL = "jdbc:oracle:thin:@//localhost:1521/XE";
+    private static final String CONN_URL = "jdbc:oracle:thin:@//10.0.1.1:1521/XE";
     private static final String USER_NAME = "student";
     private static final String PASSWORD = "student123456";
     private static final String SELECT_ALL_CARS_SQL = "select * from STUDENT.CARS";
