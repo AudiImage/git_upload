@@ -50,7 +50,6 @@ public class Practice2 {
         Collections.shuffle(numbers);
         List<Integer> lotto = numbers.stream().limit(5).collect(Collectors.toList());
 
-
         String beforeSort = lotto.stream().map(String::valueOf).collect(Collectors.joining(" ", "排序前: ", ""));
         System.out.println(beforeSort);
         Collections.sort(lotto);
