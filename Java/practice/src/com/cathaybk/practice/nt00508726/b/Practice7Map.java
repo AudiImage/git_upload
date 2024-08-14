@@ -3,7 +3,7 @@ package com.cathaybk.practice.nt00508726.b;
 import java.sql.*;
 import java.util.*;
 
-public class Practice7Hard {
+public class Practice7Map {
     private static final String CONN_URL = "jdbc:oracle:thin:@//localhost:1521/XE";
     private static final String USER_NAME = "student";
     private static final String PASSWORD = "student123456";
@@ -52,7 +52,8 @@ public class Practice7Hard {
         try (Connection conn = DriverManager.getConnection(CONN_URL, USER_NAME, PASSWORD);
              PreparedStatement pstmt = conn.prepareStatement(SELECT_ALL_CARS_SQL);
              ResultSet rs = pstmt.executeQuery()) {
-            printData(rs);
+            printMap(getMap(rs));
+
         } catch (SQLException e) {
             System.out.println("資料庫連接失敗");
             e.printStackTrace();
@@ -60,14 +61,25 @@ public class Practice7Hard {
     }
 
     private static void query(Scanner scanner) {
+
+        String manufactor = askQuestion(scanner, "manufactor", "String");
+        String type = askQuestion(scanner, "type", "String");
+        List<Map<String, String>> maps = exist(manufactor, type);
+        if (maps.size() > 0) {
+            printMap(maps);
+        } else {
+            System.out.println("查無此資料!");
+        }
+
+    }
+
+    private static List<Map<String, String>> exist(String manufactor, String type) {
         try (Connection conn = DriverManager.getConnection(CONN_URL, USER_NAME, PASSWORD);
              PreparedStatement pstmt = conn.prepareStatement(SELECT_CARS_SQL)) {
-            String manufactor = askQuestion(scanner, "manufactor", "String");
-            String type = askQuestion(scanner, "type", "String");
             pstmt.setString(1, manufactor);
             pstmt.setString(2, type);
             try (ResultSet rs = pstmt.executeQuery()) {
-                printData(rs);
+                return getMap(rs);
             } catch (Exception e) {
                 System.out.println("查詢失敗");
                 e.printStackTrace();
@@ -77,6 +89,7 @@ public class Practice7Hard {
             System.out.println("資料庫連接失敗");
             e.printStackTrace();
         }
+        return null;
     }
 
 
@@ -126,7 +139,7 @@ public class Practice7Hard {
                 price = askQuestion(scanner, "price", "double");
                 minPrice = askQuestion(scanner, "min_price", "double");
                 sb.append("MIN_PRICE = ? ").append(",").append("PRICE = ? ");
-            }else if (userSelect.equals("2")) {
+            } else if (userSelect.equals("2")) {
                 minPrice = askQuestion(scanner, "min_price", "double");
                 sb.append("MIN_PRICE = ? ");
             } else if (userSelect.equals("3")) {
@@ -137,12 +150,12 @@ public class Practice7Hard {
 
             try (PreparedStatement pstmt = conn.prepareStatement(sb.toString())) {
                 int index = 1;
-                if (minPrice.isEmpty()){
+                if (minPrice.isEmpty()) {
 
                     pstmt.setDouble(index++, Double.parseDouble(price));
-                } else if (price.isEmpty() ) {
+                } else if (price.isEmpty()) {
                     pstmt.setDouble(index++, Double.parseDouble(minPrice));
-                }else{
+                } else {
                     pstmt.setDouble(index++, Double.parseDouble(minPrice));
                     pstmt.setDouble(index++, Double.parseDouble(price));
                 }
@@ -170,11 +183,24 @@ public class Practice7Hard {
             try (PreparedStatement pstmt = conn.prepareStatement(DELETE_CAR_SQL)) {
                 String manufactor = askQuestion(scanner, "manufactor", "String");
                 String type = askQuestion(scanner, "type", "String");
-                pstmt.setString(1, manufactor);
-                pstmt.setString(2, type);
-                pstmt.executeUpdate();
-                System.out.println("刪除成功!");
-                conn.commit();
+                List<Map<String, String>> maps = exist(manufactor, type);
+                if (maps.size() > 0) {
+                    printMap(maps);
+                    System.out.printf("目前資料庫有這%d筆資料，確定要刪除嗎(輸入yes來刪除)\n", maps.size());
+                    String input = scanner.next();
+                    if (input.toLowerCase().equals("yes")) {
+                        pstmt.setString(1, manufactor);
+                        pstmt.setString(2, type);
+                        pstmt.executeUpdate();
+                        System.out.println("刪除成功!");
+                        conn.commit();
+                    }else{
+                        System.out.println("刪除終止!");
+                    }
+                }else{
+                    System.out.println("查無需要刪除資料!");
+                }
+
             } catch (Exception e) {
                 conn.rollback();
                 System.out.println("操作失敗");
@@ -192,15 +218,30 @@ public class Practice7Hard {
     /*
      * 打印資料
      */
-    public static void printData(ResultSet rs) throws SQLException {
-        while (rs.next()) {
+    public static void printMap(List<Map<String, String>> maps) {
+        for (Map<String, String> map : maps) {
             System.out.printf("製造商：%s，型號：%s，售價：%s，底價：%s%n",
-                    rs.getString("MANUFACTURER"),
-                    rs.getString("TYPE"),
-                    rs.getString("PRICE"),
-                    rs.getString("MIN_PRICE"));
+                    map.get("MANUFACTURER"),
+                    map.get("TYPE"),
+                    map.get("PRICE"),
+                    map.get("MIN_PRICE"));
         }
+
     }
+
+    public static List<Map<String, String>> getMap(ResultSet rs) throws SQLException {
+        ArrayList<Map<String, String>> maps = new ArrayList<>();
+        while (rs.next()) {
+            HashMap<String, String> map = new HashMap<>();
+            map.put("MANUFACTURER", rs.getString("MANUFACTURER"));
+            map.put("TYPE", rs.getString("TYPE"));
+            map.put("MIN_PRICE", rs.getString("MIN_PRICE"));
+            map.put("PRICE", rs.getString("PRICE"));
+            maps.add(map);
+        }
+        return maps;
+    }
+
     /*
      * 對於非數字處理
      * */
@@ -218,13 +259,13 @@ public class Practice7Hard {
      * 對輸入值進行類別檢查
      * */
 
-    private static boolean isValid(String input, String type ) {
+    private static boolean isValid(String input, String type) {
         if ("String".equals(type)) {
             return !input.trim().isEmpty();
         }
         if ("double".equals(type)) {
             try {
-                if (Double.parseDouble(input)>0){
+                if (Double.parseDouble(input) > 0) {
                     return true;
                 }
                 return false;
@@ -234,8 +275,6 @@ public class Practice7Hard {
         }
         return false;
     }
-
-
 
 
 }

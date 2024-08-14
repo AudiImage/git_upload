@@ -5,6 +5,9 @@ import java.io.*;
 import java.math.BigDecimal;
 import java.sql.Connection;
 import java.util.*;
+import java.util.function.Supplier;
+import java.util.stream.Collector;
+import java.util.stream.Collectors;
 
 public class Practice6 {
     /*
@@ -47,31 +50,24 @@ public class Practice6 {
                 sb.setLength(0);
             }
             // 分組印出
-            // 先得到全部的Manufacturer變成一個list 按照字母順序排好
-            TreeSet<String> manufactorSet = new TreeSet<>();
-            for (Map<String, String> map : lists) {
-                manufactorSet.add(map.get("manufacturer"));
-            }
-            BigDecimal total_min_prices = new BigDecimal(0);
-            BigDecimal total_prices = new BigDecimal(0);
             System.out.printf("%-14s%-9s%11s%7s\n", "Manufacturer", "TYPE", "Min.PRICE", "Price");
-            for (String manufacturer : manufactorSet) {
-                BigDecimal total_min_price = new BigDecimal(0);
-                BigDecimal total_price = new BigDecimal(0);
-                // 獲得該Manufacturer下的所有資料
-                for (Map<String, String> map : lists) {
-                    if (manufacturer.equals(map.get("manufacturer"))) {
-                        System.out.printf("%-14s%-9s%11s%7s\n", manufacturer, map.get("type"), map.get("min_price"), map.get("price"));
-                        total_price = total_price.add(new BigDecimal(map.get("price")));
-                        total_min_price = total_min_price.add(new BigDecimal(map.get("min_price")));
-                    }
+            ArrayList<BigDecimal> totalCarsPrice = new ArrayList<>();
+            ArrayList<BigDecimal> totalCarsMinPrice = new ArrayList<>();
+            Map<String, List<Map<String, String>>> groupByManufacturer = lists.stream().collect(Collectors.groupingBy(map -> map.get("manufacturer"),
+                    TreeMap::new, Collectors.toList()));
+            groupByManufacturer.forEach((manufacturer, cars) -> {
+                BigDecimal total_manu_price = BigDecimal.ZERO;
+                BigDecimal total_manu_min_price = BigDecimal.ZERO;
+                for (Map<String, String> map : cars) {
+                    System.out.printf("%-14s%-9s%11s%7s\n", manufacturer, map.get("type"), map.get("min_price"), map.get("price"));
+                    total_manu_price = total_manu_price.add(new BigDecimal(map.get("price")));
+                    total_manu_min_price = total_manu_min_price.add(new BigDecimal(map.get("min_price")));
                 }
-                total_prices = total_prices.add(total_price);
-                total_min_prices = total_min_prices.add(total_min_price);
-                System.out.printf("%-22s%11s%7s\n", "小計", total_min_price, total_price);
-            }
-            System.out.printf("%-22s%11s%7s\n", "合計", total_min_prices, total_prices);
-
+                System.out.printf("%-22s%11s%7s\n", "小計", total_manu_min_price, total_manu_price);
+                totalCarsPrice.add(total_manu_price);
+                totalCarsMinPrice.add(total_manu_min_price);
+            });
+            System.out.printf("%-22s%11s%7s\n", "合計", totalCarsMinPrice.stream().reduce(BigDecimal.ZERO, BigDecimal::add), totalCarsPrice.stream().reduce(BigDecimal.ZERO, BigDecimal::add));
         } catch (FileNotFoundException e) {
             throw new RuntimeException(e);
         } catch (IOException e) {
