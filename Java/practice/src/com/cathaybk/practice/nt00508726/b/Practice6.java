@@ -55,6 +55,29 @@ public class Practice6 {
             ArrayList<BigDecimal> totalCarsMinPrice = new ArrayList<>();
             Map<String, List<Map<String, String>>> groupByManufacturer = lists.stream().collect(Collectors.groupingBy(map -> map.get("manufacturer"),
                     TreeMap::new, Collectors.toList()));
+
+//            for (String manufacturer : groupByManufacturer.keySet()) {
+//                List<Map<String, String>> cars = groupByManufacturer.get(manufacturer);
+//                BigDecimal total_manu_price = BigDecimal.ZERO;
+//                BigDecimal total_manu_min_price = BigDecimal.ZERO;
+//                for (Map<String, String> map : cars) {
+//                    System.out.printf("%-14s%-9s%11s%7s\n", manufacturer, map.get("type"), map.get("min_price"), map.get("price"));
+//                    total_manu_price = total_manu_price.add(new BigDecimal(map.get("price")));
+//                    total_manu_min_price = total_manu_min_price.add(new BigDecimal(map.get("min_price")));
+//
+//                }
+//                System.out.printf("%-22s%11s%7s\n", "小計", total_manu_min_price, total_manu_price);
+//                totalCarsPrice.add(total_manu_price);
+//                totalCarsMinPrice.add(total_manu_min_price);
+//            }
+//            BigDecimal total_price = BigDecimal.ZERO;
+//            BigDecimal total_min_price = BigDecimal.ZERO;
+//            for (int i = 0; i < totalCarsMinPrice.size(); i++) {
+//                total_price = total_price.add(totalCarsPrice.get(i));
+//                total_min_price = total_min_price.add(totalCarsMinPrice.get(i));
+//            }
+//            System.out.printf("%-22s%11s%7s\n", "合計", total_min_price, total_price);
+
             groupByManufacturer.forEach((manufacturer, cars) -> {
                 BigDecimal total_manu_price = BigDecimal.ZERO;
                 BigDecimal total_manu_min_price = BigDecimal.ZERO;
