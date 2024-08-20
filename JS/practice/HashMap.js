@@ -6,7 +6,6 @@ let HashMap = function() {
 
     const contains = function(key) {
         if (keys.indexOf(key) != -1) {
-            console.log(keys.indexOf(key))
             return true;
         }
         return false;
@@ -15,7 +14,6 @@ let HashMap = function() {
     return {
         put: function(key, value) {
             if(!contains(key)) {
-                console.log("put key: " + key + " value: " + value)
                 keys.push(key);
                 values.push(value);
             }

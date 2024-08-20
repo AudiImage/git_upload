@@ -93,7 +93,9 @@
           const rows = document.querySelectorAll('#itemList tr');
           for (let i = 0; i < rows.length; i++) {
             const row = rows[i];
-            row.querySelector('td:nth-child(2)').textContent = getIndexById(row.id);
+            row.querySelector('td:nth-child(2)').textContent = getIndexById(
+              row.id,
+            );
           }
         });
         tdButton.appendChild(deleteButton);
@@ -125,7 +127,7 @@
                 manufactorValue,
                 catrgoryValue,
                 minpirceValue,
-                priceValue
+                priceValue,
               );
               document.getElementById('itemList').append(newTr);
             }
