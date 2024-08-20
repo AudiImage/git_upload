@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <style>
+      div {
+        margin: 10px;
+      }
+      table {
+        border-collapse: collapse;
+      }
+
+      th,
+      td {
+        border: 1px solid;
+        padding: 15px;
+        text-align: center;
+      }
+    </style>
+    <script>
+      /*
+        [
+            {
+                "id" : uuid(),
+                "manufactor" : "Toyota",
+                "catrgory" : "SUV",
+                "minPirce" : "30000",
+                "price" : "35000"
+            }
+        ]
+      */
+      let cars = [];
+
+      function getIndexById(id) {
+        return cars.findIndex((car) => car.id === id) + 1;
+      }
+
+      function deleteCarById(id) {
+        cars = cars.filter((car) => car.id !== id);
+      }
+
+      function uuid() {
+        const newUuid = window.crypto.randomUUID();
+        return newUuid;
+      }
+
+      function createTd(value) {
+        const td = document.createElement('td');
+        td.textContent = value;
+        return td;
+      }
+
+      function addData(uuid, manufactor, category, minPirce, price) {
+        //儲存資料到cars
+        cars.push({
+          id: uuid,
+          manufactor: manufactor,
+          category: category,
+          minPirce: minPirce,
+          price: price,
+        });
+        //新增tr
+        const tr = document.createElement('tr');
+        tr.id = uuid;
+        const tdInput = createTd('');
+        const radioButton = document.createElement('input');
+        radioButton.type = 'radio';
+        radioButton.addEventListener('change', function () {
+          if (this.checked) {
+            document.getElementById('manufactorInput').value = manufactor;
+            document.getElementById('catrgoryInput').value = category;
+            document.getElementById('minPirceInput').value = minPirce;
+            document.getElementById('priceInput').value = price;
+          }
+        });
+        tdInput.appendChild(radioButton);
+        const tdId = createTd(cars.length);
+        const tdManufactor = createTd(manufactor);
+        const tdCategory = createTd(category);
+        const tdMinPrice = createTd(minPirce);
+        const tdPrice = createTd(price);
+        const tdButton = createTd('');
+        const deleteButton = document.createElement('button');
+        deleteButton.textContent = '刪除';
+        deleteButton.addEventListener('click', function () {
+          //刪除list內該筆資料
+          deleteCarById(uuid);
+          //刪除頁面該行
+          tr.remove();
+          //重整全部資料序號
+          const rows = document.querySelectorAll('#itemList tr');
+          for (let i = 0; i < rows.length; i++) {
+            const row = rows[i];
+            row.querySelector('td:nth-child(2)').textContent = getIndexById(row.id);
+          }
+        });
+        tdButton.appendChild(deleteButton);
+        tr.appendChild(tdInput);
+        tr.appendChild(tdId);
+        tr.appendChild(tdManufactor);
+        tr.appendChild(tdCategory);
+        tr.appendChild(tdMinPrice);
+        tr.appendChild(tdPrice);
+        tr.appendChild(tdButton);
+
+        return tr;
+      }
+
+      window.onload = () => {
+        document
+          .getElementById('addButton')
+          .addEventListener('click', function () {
+            const manufactorValue =
+              document.getElementById('manufactorInput').value;
+            const catrgoryValue =
+              document.getElementById('catrgoryInput').value;
+            const minpirceValue =
+              document.getElementById('minPirceInput').value;
+            const priceValue = document.getElementById('priceInput').value;
+            if (manufactorValue != '' && catrgoryValue != '') {
+              const newTr = addData(
+                uuid(),
+                manufactorValue,
+                catrgoryValue,
+                minpirceValue,
+                priceValue
+              );
+              document.getElementById('itemList').append(newTr);
+            }
+          });
+
+        document
+          .getElementById('updateButton')
+          .addEventListener('click', function () {
+            const rows = document.querySelectorAll('#itemList tr');
+            let update_row;
+            for (let i = 0; i < rows.length; i++) {
+              const row = rows[i];
+              const tdRadio = row.querySelector('td:nth-child(1)');
+              if (tdRadio.querySelector('input').checked) {
+                update_row = row;
+                break;
+              }
+            }
+            if (update_row) {
+              const manufactorValue =
+                document.getElementById('manufactorInput').value;
+              const catrgoryValue =
+                document.getElementById('catrgoryInput').value;
+              const minpirceValue =
+                document.getElementById('minPirceInput').value;
+              const priceValue = document.getElementById('priceInput').value;
+              let carListIndex = getIndexById(update_row.id) - 1;
+
+              cars[carListIndex].manufactor = manufactorValue;
+              cars[carListIndex].category = catrgoryValue;
+              cars[carListIndex].minPirce = minpirceValue;
+              cars[carListIndex].price = priceValue;
+
+              update_row.querySelector('td:nth-child(1) input').checked = false;
+              update_row.querySelector('td:nth-child(3)').textContent =
+                manufactorValue;
+              update_row.querySelector('td:nth-child(4)').textContent =
+                catrgoryValue;
+              update_row.querySelector('td:nth-child(5)').textContent =
+                minpirceValue;
+              update_row.querySelector('td:nth-child(6)').textContent =
+                priceValue;
+            } else {
+              alert('請先選選擇要修改的行!');
+              return;
+            }
+          });
+
+        document
+          .getElementById('clearButton')
+          .addEventListener('click', function () {
+            cars = [];
+            const rows = document.querySelectorAll('#itemList tr');
+            rows.forEach((row) => row.remove());
+          });
+      };
+    </script>
+  </head>
+  <body>
+    <div>
+      <table>
+        <tr>
+          <td>製造商</td>
+          <td><input id="manufactorInput" type="text" /></td>
+          <td>類別</td>
+          <td><input id="catrgoryInput" type="text" /></td>
+        </tr>
+        <tr>
+          <td>底價</td>
+          <td><input id="minPirceInput" type="text" /></td>
+          <td>售價</td>
+          <td><input id="priceInput" type="text" /></td>
+        </tr>
+        <tr>
+          <td colspan="4">
+            <button type="button" id="addButton">新增</button>
+            <button type="button" id="updateButton">修改</button>
+            <button type="button" id="clearButton">清空</button>
+          </td>
+        </tr>
+      </table>
+    </div>
+    <div>
+      <table>
+        <tr>
+          <th>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</th>
+          <th>序號</th>
+          <th>製造商</th>
+          <th>類別</th>
+          <th>底價</th>
+          <th>售價</th>
+          <th>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</th>
+        </tr>
+        <tbody id="itemList"></tbody>
+      </table>
+    </div>
+  </body>
+</html>

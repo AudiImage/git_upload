@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <style>
+      .button {
+        margin: 15px;
+      }
+      .hr {
+        margin: 10px;
+      }
+    </style>
+    <script type="text/javascript" src="HashMap.js"></script>
+    <script>
+      window.onload = function () {
+        const map = new HashMap();
+        document.getElementById('PUT').addEventListener('click', function () {
+          const key = document.getElementById('KEY').value;
+          const value = document.getElementById('VALUE').value;
+          map.put(key, value);
+          document.getElementById('result_output').innerText = map.printout();
+        });
+
+        document.getElementById('CLEAR').addEventListener('click', function () {
+          map.clear();
+          document.getElementById('result_output').innerText = '';
+          document.getElementById('KEY').value = '';
+          document.getElementById('VALUE').value = '';
+        });
+      };
+    </script>
+  </head>
+  <body>
+    <table>
+      <tr>
+        <td>KEY</td>
+        <td><input id="KEY" type="text" /></td>
+      </tr>
+      <tr>
+        <td>VALUE</td>
+        <td><input id="VALUE" type="text" /></td>
+      </tr>
+    </table>
+    <hr class="hr" />
+    <button type="button" id="PUT" class="button">PUT</button>
+    <button type="button" id="CLEAR" class="button">CLEAR</button>
+    <hr class="hr" />
+    <p>[RESULT]</p>
+    <p id="result_output"></p>
+  </body>
+</html>
