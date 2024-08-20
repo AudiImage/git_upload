@@ -16,18 +16,24 @@
     <script>
       window.onload = function () {
         const map = new HashMap();
-        document.getElementById('PUT').addEventListener('click', function () {
-          const key = document.getElementById('KEY').value;
-          const value = document.getElementById('VALUE').value;
-          map.put(key, value);
-          document.getElementById('result_output').innerText = map.printout();
+        document.getElementById('put').addEventListener('click', function () {
+          const key = document.getElementById('key').value.trim();
+          if (!key) {
+            alert('Key不能為空!');
+          } else if (map.contains(key)) {
+            alert('Key值已經存在!');
+          } else {
+            // 添加键值对到 map，并更新结果输出
+            map.put(key, document.getElementById('value').value.trim());
+            resultOutput.innerText = map.printout();
+          }
         });
 
-        document.getElementById('CLEAR').addEventListener('click', function () {
+        document.getElementById('clear').addEventListener('click', function () {
           map.clear();
           document.getElementById('result_output').innerText = '';
-          document.getElementById('KEY').value = '';
-          document.getElementById('VALUE').value = '';
+          document.getElementById('key').value = '';
+          document.getElementById('value').value = '';
         });
       };
     </script>
@@ -36,18 +42,18 @@
     <table>
       <tr>
         <td>KEY</td>
-        <td><input id="KEY" type="text" /></td>
+        <td><input id="key" type="text" /></td>
       </tr>
       <tr>
         <td>VALUE</td>
-        <td><input id="VALUE" type="text" /></td>
+        <td><input id="value" type="text" /></td>
       </tr>
     </table>
     <hr class="hr" />
-    <button type="button" id="PUT" class="button">PUT</button>
-    <button type="button" id="CLEAR" class="button">CLEAR</button>
+    <button type="button" id="put" class="button">PUT</button>
+    <button type="button" id="clear" class="button">CLEAR</button>
     <hr class="hr" />
     <p>[RESULT]</p>
-    <p id="result_output"></p>
+    <p id="resultOutput"></p>
   </body>
 </html>

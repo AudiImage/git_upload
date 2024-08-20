@@ -25,13 +25,13 @@
             {
                 "id" : uuid(),
                 "manufactor" : "Toyota",
-                "catrgory" : "SUV",
-                "minPirce" : "30000",
+                "category" : "SUV",
+                "minPrice" : "30000",
                 "price" : "35000"
             }
         ]
       */
-      let cars = [];
+      const cars = [];
 
       function getIndexById(id) {
         return cars.findIndex((car) => car.id === id) + 1;
@@ -42,8 +42,7 @@
       }
 
       function uuid() {
-        const newUuid = window.crypto.randomUUID();
-        return newUuid;
+        return window.crypto.randomUUID();
       }
 
       function createTd(value) {
@@ -52,13 +51,13 @@
         return td;
       }
 
-      function addData(uuid, manufactor, category, minPirce, price) {
+      function addData(uuid, manufactor, category, minPrice, price) {
         //儲存資料到cars
         cars.push({
           id: uuid,
           manufactor: manufactor,
           category: category,
-          minPirce: minPirce,
+          minPrice: minPrice,
           price: price,
         });
         //新增tr
@@ -67,20 +66,17 @@
         const tdInput = createTd('');
         const radioButton = document.createElement('input');
         radioButton.type = 'radio';
+        radioButton.name = 'selectCar';
         radioButton.addEventListener('change', function () {
           if (this.checked) {
-            document.getElementById('manufactorInput').value = manufactor;
-            document.getElementById('catrgoryInput').value = category;
-            document.getElementById('minPirceInput').value = minPirce;
-            document.getElementById('priceInput').value = price;
+            const car = cars[getIndexById(uuid) - 1];
+            document.getElementById('manufactorInput').value = car.manufactor;
+            document.getElementById('categoryInput').value = car.category;
+            document.getElementById('minPriceInput').value = car.minPrice;
+            document.getElementById('priceInput').value = car.price;
           }
         });
         tdInput.appendChild(radioButton);
-        const tdId = createTd(cars.length);
-        const tdManufactor = createTd(manufactor);
-        const tdCategory = createTd(category);
-        const tdMinPrice = createTd(minPirce);
-        const tdPrice = createTd(price);
         const tdButton = createTd('');
         const deleteButton = document.createElement('button');
         deleteButton.textContent = '刪除';
@@ -90,23 +86,22 @@
           //刪除頁面該行
           tr.remove();
           //重整全部資料序號
-          const rows = document.querySelectorAll('#itemList tr');
-          for (let i = 0; i < rows.length; i++) {
-            const row = rows[i];
+          document.querySelectorAll('#itemList tr').forEach((row) => {
             row.querySelector('td:nth-child(2)').textContent = getIndexById(
               row.id,
             );
-          }
+          });
         });
         tdButton.appendChild(deleteButton);
-        tr.appendChild(tdInput);
-        tr.appendChild(tdId);
-        tr.appendChild(tdManufactor);
-        tr.appendChild(tdCategory);
-        tr.appendChild(tdMinPrice);
-        tr.appendChild(tdPrice);
-        tr.appendChild(tdButton);
-
+        tr.append(
+          tdInput,
+          createTd(cars.length),
+          createTd(manufactor),
+          createTd(category),
+          createTd(minPrice),
+          createTd(price),
+          tdButton,
+        );
         return tr;
       }
 
@@ -114,60 +109,55 @@
         document
           .getElementById('addButton')
           .addEventListener('click', function () {
-            const manufactorValue =
-              document.getElementById('manufactorInput').value;
-            const catrgoryValue =
-              document.getElementById('catrgoryInput').value;
-            const minpirceValue =
-              document.getElementById('minPirceInput').value;
-            const priceValue = document.getElementById('priceInput').value;
-            if (manufactorValue != '' && catrgoryValue != '') {
+            const manufactorValue = document
+              .getElementById('manufactorInput')
+              .value.trim();
+            const categoryValue = document
+              .getElementById('categoryInput')
+              .value.trim();
+            if (manufactorValue && categoryValue) {
               const newTr = addData(
                 uuid(),
                 manufactorValue,
-                catrgoryValue,
-                minpirceValue,
-                priceValue,
+                categoryValue,
+                document.getElementById('minPriceInput').value,
+                document.getElementById('priceInput').value,
               );
               document.getElementById('itemList').append(newTr);
+            } else {
+              alert('請填入製造商和類別!');
             }
           });
 
         document
           .getElementById('updateButton')
           .addEventListener('click', function () {
-            const rows = document.querySelectorAll('#itemList tr');
-            let update_row;
-            for (let i = 0; i < rows.length; i++) {
-              const row = rows[i];
-              const tdRadio = row.querySelector('td:nth-child(1)');
-              if (tdRadio.querySelector('input').checked) {
-                update_row = row;
-                break;
-              }
-            }
+            const update_row = Array.from(
+              document.querySelectorAll('#itemList tr'),
+            ).find((row) => row.querySelector('td:nth-child(1) input').checked);
+
             if (update_row) {
               const manufactorValue =
                 document.getElementById('manufactorInput').value;
-              const catrgoryValue =
-                document.getElementById('catrgoryInput').value;
-              const minpirceValue =
-                document.getElementById('minPirceInput').value;
+              const categoryValue =
+                document.getElementById('categoryInput').value;
+              const minPriceValue =
+                document.getElementById('minPriceInput').value;
               const priceValue = document.getElementById('priceInput').value;
               let carListIndex = getIndexById(update_row.id) - 1;
 
               cars[carListIndex].manufactor = manufactorValue;
-              cars[carListIndex].category = catrgoryValue;
-              cars[carListIndex].minPirce = minpirceValue;
+              cars[carListIndex].category = categoryValue;
+              cars[carListIndex].minPrice = minPriceValue;
               cars[carListIndex].price = priceValue;
 
               update_row.querySelector('td:nth-child(1) input').checked = false;
               update_row.querySelector('td:nth-child(3)').textContent =
                 manufactorValue;
               update_row.querySelector('td:nth-child(4)').textContent =
-                catrgoryValue;
+                categoryValue;
               update_row.querySelector('td:nth-child(5)').textContent =
-                minpirceValue;
+                minPriceValue;
               update_row.querySelector('td:nth-child(6)').textContent =
                 priceValue;
             } else {
@@ -182,6 +172,10 @@
             cars = [];
             const rows = document.querySelectorAll('#itemList tr');
             rows.forEach((row) => row.remove());
+            document.getElementById('manufactorInput').value = '';
+            document.getElementById('categoryInput').value = '';
+            document.getElementById('minPriceInput').value = '';
+            document.getElementById('priceInput').value = '';
           });
       };
     </script>
@@ -193,11 +187,11 @@
           <td>製造商</td>
           <td><input id="manufactorInput" type="text" /></td>
           <td>類別</td>
-          <td><input id="catrgoryInput" type="text" /></td>
+          <td><input id="categoryInput" type="text" /></td>
         </tr>
         <tr>
           <td>底價</td>
-          <td><input id="minPirceInput" type="text" /></td>
+          <td><input id="minPriceInput" type="text" /></td>
           <td>售價</td>
           <td><input id="priceInput" type="text" /></td>
         </tr>
