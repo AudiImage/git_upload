@@ -3,10 +3,34 @@
   <head>
     <title>心理測驗看「減肥會成功or失敗」</title>
     <style>
-      table,
       th,
       td {
-        border: 1px solid #333;
+        border: 1px solid #000;
+        padding: 8px;
+        text-align: center;
+      }
+      th {
+        background-color: #f2f2f2;
+      }
+      #resultTable {
+        background-color: #ffffffce;
+      }
+      table {
+        width: 75%;
+        border-collapse: collapse;
+      }
+      label {
+        display: block;
+        margin-bottom: 5px;
+      }
+      .hidden {
+        margin-bottom: 5px;
+        display: none;
+      }
+      #resultTitle {
+      }
+
+      #resultContent {
       }
     </style>
     <script type="text/javascript" src="psychometricTestObject.js"></script>
@@ -17,31 +41,79 @@
         return td;
       }
 
-      // 下一題
-      function nextQuestion(question, answer) {
+      // 返回下一題題號
+      function nextQuestion(qNumber, answer) {
         const question = psychometricTest[qNumber];
+        return psychometricTest[qNumber].next[question.ans.indexOf(answer)];
+      }
+      //清空當前題目
+      function clearQuestion() {
+        document.querySelectorAll('#questionList tr').forEach(tr => tr.remove())
       }
 
       //打印題目
       function showQuestion(qNumber) {
+        document.getElementsByClassName('hidden')[0].style.display = 'none';
+        
+        
+        if (!qNumber.includes('Q')) {
+          //已經可以回傳結果了
+          showResult(qNumber);
+          return;
+        }
         const question = psychometricTest[qNumber];
         let tr = document.createElement('tr');
         //選項
         tdSelections = createTd();
-        question.answer.forEach(answer => {
-            let label = document.createElement('label');
-            label.textContent = answer;
-            let input = document.createElement('input');
-            input.type = 'radio';
-            input.name = 'answer' + qNumber;
-            label.appendChild(input);
-            tdSelections.appendChild(label);
-        })
+        question.ans.forEach((answer) => {
+          let label = document.createElement('label');
+          let input = document.createElement('input');
+          input.type = 'radio';
+          input.name = 'answer' + qNumber;
+          input.value = answer;
+          label.appendChild(input);
+          let textNode = document.createTextNode(answer);
+          label.appendChild(textNode);
+          tdSelections.appendChild(label);
+        });
         let button = document.createElement('button');
         button.textContent = '下一題';
-        //下一提 要把這一題 選取關掉 還有這個按鈕也要關掉 還有判斷 下一題在哪裡
-        tr.append(createTd(qNumber), createTd(question.question), tdSelections)
+        button.addEventListener('click', () => {
+          const selectRadio = button
+            .closest('tr')
+            .querySelector('input[type="radio"]:checked');
+          if (selectRadio) {
+            //要把這一題 選取關掉 還有這個按鈕也要關掉 還有判斷 下一題在哪裡
+            selectRadio.disabled = true;
+            button.disabled = true;
+            showQuestion(nextQuestion(qNumber, selectRadio.value));
+          } else {
+            alert('請選擇答案');
+          }
+        });
+        let tdButton = createTd();
+        tdButton.appendChild(button);
+
+        tr.append(
+          createTd(qNumber),
+          createTd(question.question),
+          tdSelections,
+          tdButton,
+        );
+        document.getElementById('questionList').appendChild(tr);
       }
+
+      //打印結果
+      function showResult(qNumber) {
+        const { title, content } = result[qNumber];
+        const div = document.getElementsByClassName('hidden')[0];
+        div.querySelector('h3').textContent = qNumber + title;
+        div.querySelector('p').textContent = content;
+        div.style.display = 'block';
+      }
+      window.onload = () => {
+        showQuestion('Q1');
+      };
     </script>
   </head>
 
@@ -69,6 +141,12 @@
         </tr>
         <tbody id="questionList"></tbody>
       </table>
+      <div class="hidden">
+        <h3 class="resultTittle"></h3>
+        <p class="resultContent"></p>
+        </p>
+        <button onclick="clearQuestion();showQuestion('Q1')">重新測驗</button>
+      </div>
     </div>
   </body>
 </html>
