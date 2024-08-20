@@ -14,6 +14,14 @@
     </style>
     <script type="text/javascript" src="HashMap.js"></script>
     <script>
+
+      function printout(hashmap) {
+            let text = '';
+            hashmap.keys().forEach(key => {
+              text += `${key}: ${hashmap.get(key)}\n`;
+            })
+            return text;
+        }
       window.onload = function () {
         const map = new HashMap();
         document.getElementById('put').addEventListener('click', function () {
@@ -25,7 +33,7 @@
           } else {
             // 添加键值对到 map，并更新结果输出
             map.put(key, document.getElementById('value').value.trim());
-            resultOutput.innerText = map.printout();
+            resultOutput.innerText = printout(map);
           }
         });
 

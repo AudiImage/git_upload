@@ -22,12 +22,5 @@ let HashMap = function() {
         clear: function() {
             hashmap = {};
         },
-        printout: function() {
-            let text = '';
-            for (const [key, value] of Object.entries(hashmap)) {
-                text += `${key}: ${value}\n`;
-            }
-            return text;
-        }
     };
 };
