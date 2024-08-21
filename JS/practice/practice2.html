@@ -51,6 +51,44 @@
         return td;
       }
 
+      function updateInputs(
+        manufactor = '',
+        category = '',
+        minPrice = '',
+        price = '',
+      ) {
+        document.getElementById('manufactorInput').value = manufactor;
+        document.getElementById('categoryInput').value = category;
+        document.getElementById('minPriceInput').value = minPrice;
+        document.getElementById('priceInput').value = price;
+      }
+      function validateInputs(manufactor, category, minPrice, price) {
+        if (!manufactor || !category) {
+          alert('請填入製造商和類別!');
+          return false;
+        }
+
+        const minPriceNum = parseFloat(minPrice);
+        const priceNum = parseFloat(price);
+
+        if (
+          isNaN(minPriceNum) ||
+          isNaN(priceNum) ||
+          minPriceNum < 0 ||
+          priceNum < 0
+        ) {
+          alert('請輸入有效的價格!');
+          return false;
+        }
+
+        if (priceNum < minPriceNum) {
+          alert('售價不能低於底價!');
+          return false;
+        }
+
+        return true;
+      }
+
       function addData(uuid, manufactor, category, minPrice, price) {
         //儲存資料到cars
         cars.push({
@@ -70,10 +108,7 @@
         radioButton.addEventListener('change', function () {
           if (this.checked) {
             const car = cars[getIndexById(uuid) - 1];
-            document.getElementById('manufactorInput').value = car.manufactor;
-            document.getElementById('categoryInput').value = car.category;
-            document.getElementById('minPriceInput').value = car.minPrice;
-            document.getElementById('priceInput').value = car.price;
+            updateInputs(car.manufactor, car.category, car.minPrice, car.price);
           }
         });
         tdInput.appendChild(radioButton);
@@ -115,51 +150,69 @@
             const categoryValue = document
               .getElementById('categoryInput')
               .value.trim();
-            if (manufactorValue && categoryValue) {
+            const minPriceValue = document
+              .getElementById('minPriceInput')
+              .value.trim();
+            const priceValue = document
+              .getElementById('priceInput')
+              .value.trim();
+            if (
+              validateInputs(
+                manufactorValue,
+                categoryValue,
+                minPriceValue,
+                priceValue,
+              )
+            ) {
               const newTr = addData(
                 uuid(),
                 manufactorValue,
                 categoryValue,
-                document.getElementById('minPriceInput').value,
-                document.getElementById('priceInput').value,
+                minPriceValue,
+                priceValue,
               );
               document.getElementById('itemList').append(newTr);
-            } else {
-              alert('請填入製造商和類別!');
+              updateInputs();
             }
           });
-
         document
           .getElementById('updateButton')
           .addEventListener('click', function () {
             const update_row = Array.from(
               document.querySelectorAll('#itemList tr'),
             ).find((row) => row.querySelector('td:nth-child(1) input').checked);
-
-            if (update_row) {
-              const manufactorValue = document
-                .getElementById('manufactorInput')
-                .value.trim();
-              const categoryValue = document
-                .getElementById('categoryInput')
-                .value.trim();
-              if (!manufactorValue || !categoryValue) {
-                alert('請輸入製造商和類別!');
-                return;
-              }
-              const minPriceValue = document
-                .getElementById('minPriceInput')
-                .value.trim();
-              const priceValue = document
-                .getElementById('priceInput')
-                .value.trim();
+            if (!update_row) {
+              alert('請先選選擇要修改的行!');
+              return;
+            }
+            const manufactorValue = document
+              .getElementById('manufactorInput')
+              .value.trim();
+            const categoryValue = document
+              .getElementById('categoryInput')
+              .value.trim();
+            const minPriceValue = document
+              .getElementById('minPriceInput')
+              .value.trim();
+            const priceValue = document
+              .getElementById('priceInput')
+              .value.trim();
+            if (
+              validateInputs(
+                manufactorValue,
+                categoryValue,
+                minPriceValue,
+                priceValue,
+              )
+            ) {
               let carListIndex = getIndexById(update_row.id) - 1;
-
-              cars[carListIndex].manufactor = manufactorValue;
-              cars[carListIndex].category = categoryValue;
-              cars[carListIndex].minPrice = minPriceValue;
-              cars[carListIndex].price = priceValue;
-
+              cars[carListIndex] = {
+                ...cars[carListIndex],
+                manufactor: manufactorValue,
+                category: categoryValue,
+                minPrice: minPriceValue,
+                price: priceValue,
+              };
               update_row.querySelector('td:nth-child(1) input').checked = false;
               update_row.querySelector('td:nth-child(3)').textContent =
                 manufactorValue;
@@ -169,9 +222,7 @@
                 minPriceValue;
               update_row.querySelector('td:nth-child(6)').textContent =
                 priceValue;
-            } else {
-              alert('請先選選擇要修改的行!');
-              return;
+              updateInputs();
             }
           });
 
@@ -181,10 +232,6 @@
             cars = [];
             const rows = document.querySelectorAll('#itemList tr');
             rows.forEach((row) => row.remove());
-            document.getElementById('manufactorInput').value = '';
-            document.getElementById('categoryInput').value = '';
-            document.getElementById('minPriceInput').value = '';
-            document.getElementById('priceInput').value = '';
           });
       };
     </script>

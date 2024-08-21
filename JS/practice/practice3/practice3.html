@@ -46,16 +46,17 @@
         const question = psychometricTest[qNumber];
         return psychometricTest[qNumber].next[question.ans.indexOf(answer)];
       }
-      //清空當前題目
+      //清空當前顯示題目
       function clearQuestion() {
-        document.querySelectorAll('#questionList tr').forEach(tr => tr.remove())
+        document
+          .querySelectorAll('#questionList tr')
+          .forEach((tr) => tr.remove());
       }
 
       //打印題目
       function showQuestion(qNumber) {
         document.getElementsByClassName('hidden')[0].style.display = 'none';
-        
-        
+
         if (!qNumber.includes('Q')) {
           //已經可以回傳結果了
           showResult(qNumber);
@@ -72,8 +73,7 @@
           input.name = 'answer' + qNumber;
           input.value = answer;
           label.appendChild(input);
-          let textNode = document.createTextNode(answer);
-          label.appendChild(textNode);
+          label.appendChild(document.createTextNode(answer));
           tdSelections.appendChild(label);
         });
         let button = document.createElement('button');
@@ -113,6 +113,10 @@
       }
       window.onload = () => {
         showQuestion('Q1');
+        document.getElementById('restartButton').addEventListener('click', () => {
+          clearQuestion();
+          showQuestion('Q1');
+        });
       };
     </script>
   </head>
@@ -144,8 +148,7 @@
       <div class="hidden">
         <h3 class="resultTittle"></h3>
         <p class="resultContent"></p>
-        </p>
-        <button onclick="clearQuestion();showQuestion('Q1')">重新測驗</button>
+        <button id="restartButton">重新測驗</button>
       </div>
     </div>
   </body>
